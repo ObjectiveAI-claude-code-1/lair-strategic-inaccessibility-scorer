@@ -1,0 +1,375 @@
+{
+  "type": "scalar.function",
+  "description": "Evaluate how difficult it would be for heroes, government agents, and do-gooders to locate and assault a potential evil lair location. Returns a score from 0 (trivially accessible) to 1 (virtually impregnable). Evaluates four dimensions: geographic remoteness, concealment potential, defensive perimeter, and counter-intelligence value.",
+  "input_schema": {
+    "type": "object",
+    "description": "Input for evaluating the strategic inaccessibility of a potential evil lair location",
+    "properties": {
+      "location": {
+        "type": "string",
+        "description": "A text description of the potential lair location, including geographic features, terrain, structures, and environmental conditions"
+      },
+      "villain_profile": {
+        "type": "string",
+        "description": "Optional context about the villain's operational style, resource level, known enemies, and preferences that may influence the evaluation"
+      }
+    },
+    "required": [
+      "location"
+    ]
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for their DISTANCE FROM CIVILIZATION. Your task is to assess how far the location is from major population centers, law enforcement agencies, and military installations that could mount an assault or rescue operation.\n\nConsider:\n- Distance to the nearest city of significant size (100,000+ population)\n- Estimated response time for conventional law enforcement\n- Proximity to military bases capable of rapid deployment\n- How long it would take for backup to arrive if a hero called for help\n\nEvaluate the location provided and rate the geographic isolation. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - The location is extremely remote. Major population centers and military installations are many hours or days away. Law enforcement response would require extraordinary logistics.",
+        "LOW - The location is within reasonable reach of civilization. Response forces could arrive within hours. The isolation provides minimal time advantage."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for NATURAL BARRIERS. Your task is to assess the quality and difficulty of natural obstacles that attackers would need to traverse to reach this location.\n\nConsider:\n- Ocean barriers requiring naval assets to cross\n- Mountain ranges with altitude, terrain complexity, and limited passes\n- Desert regions with extreme heat, lack of water, and no cover\n- Jungle with dense vegetation limiting movement and visibility\n- Polar ice with extreme cold and seasonal inaccessibility\n- Multiple barrier types compounding difficulty\n\nEvaluate the location provided and rate the natural barrier protection. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Formidable natural barriers exist. Attackers would face oceans, mountains, deserts, jungle, or ice that significantly impede approach. Specialized equipment and training would be required.",
+        "LOW - Few or no significant natural barriers. The terrain between civilization and the location is relatively traversable with standard equipment and vehicles."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for TRANSPORTATION INFRASTRUCTURE ABSENCE. Your task is to assess how difficult it is to reach the location due to lack of roads, airports, ports, and other access infrastructure.\n\nConsider:\n- Are there paved roads leading to or near the location?\n- Is there an airport or airstrip within practical range?\n- Are there ports or navigable waterways providing access?\n- Can the location be reached only by helicopter, specialized vehicles, or on foot?\n- Are approach vectors limited and easily monitored?\n\nEvaluate the location provided and rate the absence of transportation infrastructure. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Minimal or no transportation infrastructure exists. No roads, airports, or ports within practical range. Approach requires specialized vehicles, aircraft, or extended travel on foot.",
+        "LOW - Adequate transportation infrastructure exists. Roads, airports, or ports provide relatively straightforward access routes for assault forces."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for ENVIRONMENTAL HOSTILITY. Your task is to assess how inhospitable the environmental conditions are to attacking forces.\n\nConsider:\n- Extreme temperatures (severe heat or cold) that tax personnel and equipment\n- High altitude creating physiological challenges and equipment degradation\n- Toxic or corrosive atmospheres requiring protective gear\n- Seismic activity, volcanic hazards, or extreme weather patterns\n- Environmental conditions that slow movement and impair combat effectiveness\n\nEvaluate the location provided and rate the environmental hostility. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Extremely hostile environment. Attackers would face extreme temperatures, altitude sickness, toxic conditions, or other environmental hazards that significantly impair operations.",
+        "LOW - Relatively benign environment. While not necessarily comfortable, environmental conditions would not significantly impede a well-equipped assault force."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for NATURAL CAMOUFLAGE OPPORTUNITIES. Your task is to assess how effectively the location can be concealed using natural features.\n\nConsider:\n- Volcanic caves where heat and chemical signatures mask facility operations\n- Underwater locations concealed from surface and aerial surveillance\n- Underground spaces invisible from above\n- Dense forest canopy blocking satellite and aerial reconnaissance\n- Urban environments where the facility can hide among legitimate structures\n- Natural features that obscure or disguise construction\n\nEvaluate the location provided and rate the natural camouflage potential. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent natural concealment. The location offers volcanic caves, underwater access, subterranean space, dense canopy, or other features that naturally hide construction and operations.",
+        "LOW - Poor natural concealment. The location is exposed and visible, with few natural features to mask the presence of a facility."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for COVER STORY PLAUSIBILITY. Your task is to assess whether any visible surface structures or activity could be credibly explained as legitimate operations.\n\nConsider:\n- Can the facility plausibly pose as a mining operation, research station, religious retreat, private resort, or other legitimate enterprise?\n- Would unusual energy consumption have a credible explanation?\n- Could personnel movements and material deliveries be explained by the cover story?\n- Are there existing legitimate operations in the area that provide context?\n- Could shell companies and false paper trails reinforce the cover?\n\nEvaluate the location provided and rate the cover story plausibility. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Highly plausible cover available. The location naturally supports credible explanations for visible activity - mining, research, tourism, agriculture, or other legitimate purposes.",
+        "LOW - Difficult to establish credible cover. Any visible activity would be suspicious and difficult to explain as legitimate operations."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for SURVEILLANCE RESISTANCE. Your task is to assess how difficult it would be for satellites, aircraft, drones, and other reconnaissance assets to effectively surveil this location.\n\nConsider:\n- Regular cloud cover, fog, or atmospheric interference blocking optical surveillance\n- Legal restrictions on overflights (military zones, sovereign airspace)\n- Terrain features that complicate aerial reconnaissance\n- Ability to design surface structures that are unrecognizable from above\n- High civilian air traffic that would mask unusual flights\n- Natural interference with radar or other sensor systems\n\nEvaluate the location provided and rate the surveillance resistance. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Highly resistant to surveillance. Cloud cover, terrain, airspace restrictions, or other factors significantly impede satellite and aerial reconnaissance.",
+        "LOW - Vulnerable to surveillance. Clear skies, open terrain, and unrestricted airspace make the location easy to observe from above."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for SIGNATURE MINIMIZATION POTENTIAL. Your task is to assess how effectively the location could mask or blend the operational signatures of a lair.\n\nConsider:\n- Thermal signature: Can heat output blend with natural sources (volcanic activity, sun-baked rock) or be effectively dispersed?\n- Electromagnetic signature: Can radio and electronic emissions be shielded or masked by legitimate traffic?\n- Acoustic signature: Can unusual sounds be contained underground or masked by natural noise?\n- Chemical signature: Can ventilation and waste systems avoid creating detectable plumes?\n- Multi-spectral detection: Overall ability to avoid standing out across detection domains\n\nEvaluate the location provided and rate the signature minimization potential. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent signature masking potential. Natural features help disguise thermal, electromagnetic, acoustic, or chemical signatures, or the location allows for effective shielding.",
+        "LOW - Poor signature masking potential. Operational signatures would be difficult to hide and would likely be detected by modern multi-spectral surveillance."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for NATURAL CHOKEPOINTS AND KILL ZONES. Your task is to assess whether the terrain creates natural chokepoints that funnel approaching forces into defensible positions.\n\nConsider:\n- Narrow passes, bridges, or tunnels that limit approach vectors\n- Natural features that channel attackers into predetermined areas\n- Ability to observe approaches while defenders remain concealed\n- Terrain that forces attackers to advance in exposed, single-file formations\n- Approaches that could be made impassable through controlled demolition\n\nEvaluate the location provided and rate the natural chokepoint quality. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent natural chokepoints. The terrain funnels attackers through narrow passes, bridges, or other confined approaches that create natural kill zones.",
+        "LOW - No significant chokepoints. Attackers can approach from multiple directions across open or varied terrain without being channeled."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for DEFENDER TERRAIN ADVANTAGE. Your task is to assess whether the natural terrain favors defenders over attacking forces.\n\nConsider:\n- Does the location command high ground?\n- Are there natural fortifications (cliff faces, water barriers, dense vegetation)?\n- Is the surrounding terrain difficult to traverse quickly?\n- Can defenders move between positions through protected routes?\n- Must attackers cross exposed ground while defenders have cover?\n- Historical military value of similar terrain for defensive purposes\n\nEvaluate the location provided and rate the defender terrain advantage. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Strong defender advantage. The location commands high ground, features natural fortifications, and provides cover for defenders while exposing attackers.",
+        "LOW - Minimal defender advantage. The terrain does not significantly favor defenders over a well-equipped attacking force."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for ESCAPE ROUTE AVAILABILITY. Your task is to assess whether the location offers multiple concealed routes for emergency evacuation of leadership and critical assets.\n\nConsider:\n- Can leadership evacuate through routes not visible to or controlled by attackers?\n- Are there underwater, underground, or aerial evacuation options?\n- Can evacuation routes remain concealed until needed?\n- Is there capacity for pre-positioned vehicles and supplies along escape routes?\n- Do escape routes lead to genuinely safe destinations?\n- Are there multiple independent routes (redundancy if one is compromised)?\n\nEvaluate the location provided and rate the escape route availability. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent escape options. Multiple concealed evacuation routes exist via underground tunnels, underwater passages, hidden airstrips, or other means invisible to attacking forces.",
+        "LOW - Limited escape options. Few or no concealed evacuation routes; the location risks becoming a trap if defenses are breached."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for DEFENSIVE INSTALLATION CAPACITY. Your task is to assess whether the location can accommodate extensive layered defensive installations and modifications.\n\nConsider:\n- Can natural terrain be enhanced with artificial defenses?\n- Is there room for defense in depth (multiple lines attackers must breach sequentially)?\n- Can automated systems (sensors, barriers, countermeasures) be integrated with natural features?\n- Does the location allow for both active and passive defense measures?\n- Can defensive modifications be concealed until activated?\n- Is there space for garrison forces, armories, and defensive infrastructure?\n\nEvaluate the location provided and rate the defensive installation capacity. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent capacity for defensive installations. The location can accommodate extensive layered defenses, automated systems, and garrison infrastructure while maintaining concealment.",
+        "LOW - Limited capacity for defensive installations. The location's geography or exposure makes it difficult to install significant defensive infrastructure."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for LEGITIMATE TRAFFIC PROXIMITY. Your task is to assess whether the location is near legitimate traffic patterns that can provide cover for suspicious movements.\n\nConsider:\n- Is the location near shipping lanes, air corridors, or transit routes?\n- Can suspicious vessel or aircraft movements blend with legitimate traffic?\n- Are there regular supply deliveries that can conceal irregular ones?\n- Can personnel travel to and from the lair without creating obvious patterns?\n- Would surveillance of approach routes be complicated by high legitimate traffic volume?\n\nEvaluate the location provided and rate the legitimate traffic proximity. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent traffic cover. The location is near busy shipping lanes, air corridors, or transit routes where suspicious movements can blend with legitimate traffic.",
+        "LOW - Poor traffic cover. The location is isolated from legitimate traffic patterns; any approach or departure would be conspicuous."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for COMMUNICATION INFRASTRUCTURE ACCESS. Your task is to assess the location's access to communication infrastructure for intelligence gathering and operational connectivity.\n\nConsider:\n- Can the location tap into existing communication networks for monitoring?\n- Is there access to undersea cables, satellite coverage, or fiber optic networks?\n- Can the location maintain secure communications with field operations?\n- Is there capacity for signals intelligence gathering?\n- Can communication links be established without revealing the location?\n\nEvaluate the location provided and rate the communication infrastructure access. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent communication access. The location can tap into major communication infrastructure for monitoring while maintaining secure, untraceable connectivity for operations.",
+        "LOW - Poor communication access. The location is cut off from major communication infrastructure, limiting intelligence gathering and operational coordination."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for LOGISTICS BLENDING CAPABILITY. Your task is to assess whether supplies, materials, and personnel can be moved to the location through channels that blend with legitimate commerce.\n\nConsider:\n- Can supplies be ordered through legitimate channels without raising suspicion?\n- Are there nearby populations that explain resource consumption?\n- Can construction materials and equipment be sourced locally or through normal commerce?\n- Is there access to skilled labor through plausible cover employment?\n- Can large deliveries be explained by legitimate business operations?\n\nEvaluate the location provided and rate the logistics blending capability. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent logistics blending. Supplies, materials, and personnel can flow to the location through channels indistinguishable from legitimate commerce.",
+        "LOW - Poor logistics blending. Supplying the location requires conspicuous specialized logistics that would attract attention."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a strategic analyst evaluating potential lair locations for LOCAL DISCRETION ENVIRONMENT. Your task is to assess whether the local environment is one where unusual activity would go unreported.\n\nConsider:\n- Are local populations sparse, corrupt, or indifferent to unusual activity?\n- Is there a cultural tradition of privacy and non-interference?\n- Are local authorities easily influenced, ignored, or absent?\n- Is there tolerance for eccentric wealthy individuals with unusual projects?\n- Would strange lights, sounds, or midnight deliveries go unremarked?\n- Is the region generally outside the attention of global media and intelligence agencies?\n\nEvaluate the location provided and rate the local discretion environment. Choose the single best answer."
+        },
+        {
+          "role": "user",
+          "content": {
+            "$jmespath": "input.location"
+          }
+        }
+      ],
+      "responses": [
+        "HIGH - Excellent discretion environment. Local populations are sparse, indifferent, or cooperative; unusual activity would go unreported and uninvestigated.",
+        "LOW - Poor discretion environment. Active local populations, vigilant authorities, or media attention would quickly expose unusual activity."
+      ],
+      "output": {
+        "$starlark": "output['scores'][0]"
+      }
+    }
+  ]
+}
